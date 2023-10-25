@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <vector>
 #include <string>
+#include <filesystem>
 #include "AppMonitor.h"
 #include "helpers/Process.h"
 #include "../helpers/UtilString.h"
@@ -21,8 +22,34 @@ bool Monitor::init()
 
 bool Monitor::check()
 {
-    sServer.wait(3000);
+    std::string heartBeatFilePath = std::string("./resources/ALIVE" + sServer.pid());
+
+    // If we got heartbeat from Server as a file
+    // Remove this file, and wait for another beat
+    bool isGotBeat = fileExists(heartBeatFilePath);
+    std::filesystem::remove(heartBeatFilePath);
+
+    // Check if we got beat and if Server process didn't crash
+    if (!isGotBeat || !sServer.wait(3000)) {
+        return false;
+    }
     return true;
+}
+
+void Monitor::deleteResource() {
+    std::string path = "./resources";
+    for (const auto& file : std::filesystem::directory_iterator(path)) {
+        if (std::filesystem::is_regular_file(file)) {
+            if (file.path().filename() != "./STATE") {
+                std::filesystem::remove_all(file.path());
+            }
+        }
+    }
+}
+
+void Monitor::getAndSetPort() {
+    std::string path = std::string("./resources/CREATED");
+    sPort = split(fileReadStr(path), ",")[0];
 }
 
 void Monitor::reset()
