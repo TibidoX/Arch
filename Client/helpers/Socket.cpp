@@ -2,7 +2,7 @@
 #include <WS2tcpip.h>
 
 #include "Socket.h"
-#include "UtilString.h"
+#include "../../helpers/UtilString.h"
 
 static int sSocketId = 0;
 
@@ -23,9 +23,8 @@ Socket::~Socket()
         WSACleanup(); // this is executed once during app teardown
 }
 
-bool Socket::init(DWORD timeout)
+bool Socket::init(uint32_t timeout)
 {
-    close();
     if ((m_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         printf("socket error\n");
