@@ -24,12 +24,9 @@ bool Monitor::check()
 {
     std::string heartBeatFilePath = std::string("./resources/ALIVE" + sServer.pid());
 
-    // If we got heartbeat from Server as a file
-    // Remove this file, and wait for another beat
     bool isGotBeat = fileExists(heartBeatFilePath);
     std::filesystem::remove(heartBeatFilePath);
 
-    // Check if we got beat and if Server process didn't crash
     if (!isGotBeat || !sServer.wait(3000)) {
         return false;
     }
@@ -37,10 +34,10 @@ bool Monitor::check()
 }
 
 void Monitor::deleteResource() {
-    std::string path = "./resources";
-    for (const auto& file : std::filesystem::directory_iterator(path)) {
+    std::string directoryPath = "./resources";
+    for (const auto& file : std::filesystem::directory_iterator(directoryPath)) {
         if (std::filesystem::is_regular_file(file)) {
-            if (file.path().filename() != "./STATE") {
+            if (file.path().filename() != ".\\STATE") {
                 std::filesystem::remove_all(file.path());
             }
         }

@@ -6,6 +6,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <direct.h>
+#include <unordered_set>
+#include <filesystem>
+#include <fstream>
 
 void makePath(std::string path)
 {
@@ -18,6 +21,13 @@ void makePath(std::string path)
         _mkdir(end != std::string::npos ? path.substr(0, end + 1).c_str() : path.c_str());
         start = end + 1;
     } while (end != std::string::npos);
+}
+
+inline bool isImageExtension(const std::filesystem::path& filePath) {
+    std::string extension = filePath.extension().string();
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+    static const std::unordered_set<std::string> validExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+    return validExtensions.count(extension) > 0;
 }
 
 inline static char* fileRead(const std::string& path, unsigned long long* fileSize = NULL, bool text = false)

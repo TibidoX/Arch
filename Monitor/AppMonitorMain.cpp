@@ -12,9 +12,7 @@ int main()
             std::cerr << "Server initialization failed!\n";
         }
         return 1;
-    }// in practice some sort of alarm should be raised here
-
-    Sleep(3000);
+    }
 
     while (1) {
         if (!m.check()) {
