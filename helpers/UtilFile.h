@@ -10,7 +10,7 @@
 #include <filesystem>
 #include <fstream>
 
-void makePath(std::string path)
+inline void makePath(std::string path)
 {
     if (path == "")
         return;
@@ -23,28 +23,21 @@ void makePath(std::string path)
     } while (end != std::string::npos);
 }
 
-inline bool isImageExtension(const std::filesystem::path& filePath) {
-    std::string extension = filePath.extension().string();
-    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-    static const std::unordered_set<std::string> validExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-    return validExtensions.count(extension) > 0;
-}
-
 inline static char* fileRead(const std::string& path, unsigned long long* fileSize = NULL, bool text = false)
 {
-    FILE* file = fopen( path.c_str(), "rb" );
-    if(!file)
+    FILE* file = fopen(path.c_str(), "rb");
+    if (!file)
         return NULL;
 
     fseek(file, 0, SEEK_END);
     size_t bufLen = ftell(file);
-    if(fileSize)
+    if (fileSize)
         *fileSize = bufLen;
-    rewind( file );
+    rewind(file);
 
     char* buffer = new char[bufLen + (text ? 1 : 0)];
     size_t last = fread(buffer, 1, bufLen, file);
-    if(text)
+    if (text)
         buffer[last] = 0;
 
     fclose(file);
@@ -56,21 +49,35 @@ inline static char* fileReadStr(const std::string& path)
     return fileRead(path, 0, true);
 }
 
+inline bool isImageExtension(const std::filesystem::path& filePath) {
+    std::string extension = filePath.extension().string();
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+    static const std::unordered_set<std::string> validExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+    return validExtensions.count(extension) > 0;
+}
+
+inline std::string getExtension(const std::string& filePath) {
+    auto p = std::filesystem::path(filePath);
+    auto ext = p.extension().string();
+    ext.erase(0, 1);
+    return ext;
+};
+
 inline static int fileWrite(const std::string& name, const char* bulk, int len, bool append = false, bool exclusive = false)
 {
     size_t pos = name.rfind("\\");
-    if(pos != std::string::npos)
+    if (pos != std::string::npos)
         makePath(name.substr(0, pos));
 
     FILE* f = NULL;
-    if(append)
+    if (append)
         f = fopen(name.c_str(), "ab");
     else
     {
         int fd = _open(name.c_str(), (exclusive ? _O_EXCL : 0) | _O_WRONLY | _O_CREAT | _O_TRUNC | _O_BINARY, _S_IREAD | _S_IWRITE);
         f = fd == -1 ? NULL : _fdopen(fd, "wb");
     }
-    if(!f)
+    if (!f)
         return 0;
 
     int result = fwrite(bulk, 1, len, f);
@@ -81,6 +88,18 @@ inline static int fileWrite(const std::string& name, const char* bulk, int len, 
 inline static int fileWriteStr(const std::string& name, std::string str, bool append = false, bool exclusive = false)
 {
     return fileWrite(name, str.c_str(), str.length(), append, exclusive);
+}
+
+inline static std::string getFileStr(const std::string& path) {
+    std::ifstream input_file(path, std::ios::binary);
+    std::string file_contents((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+    return file_contents;
+}
+
+inline static void writeFileStr(const std::string& path, const char* buff, int size) {
+    std::ofstream output_file(path, std::ios::binary);
+    output_file.write(buff, size);
+    output_file.close();
 }
 
 inline static int fileAppend(const std::string& name, std::string str)
@@ -110,10 +129,10 @@ inline static int fileWriteExclusive(const std::string& name, std::string str)
     return result;
 }
 */
-bool fileExists(const std::string& path)
+inline bool fileExists(const std::string& path)
 {
     FILE* f = fopen(path.c_str(), "r");
-    if(!f)
+    if (!f)
         return false;
     fclose(f);
     return true;

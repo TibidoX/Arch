@@ -22,6 +22,20 @@ bool Process::create(char* cmd)
     return ok;
 }
 
+void Process::off() {
+    SuspendThread(m_thread);
+    isActive = true;
+}
+
+void Process::on() {
+    ResumeThread(m_thread);
+    isActive = false;
+}
+
+bool Process::getStatus() {
+    return isActive;
+}
+
 bool Process::wait(int timeout)
 {
     return m_init ? WaitForSingleObject(m_process, timeout) == WAIT_TIMEOUT : false;

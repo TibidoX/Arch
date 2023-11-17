@@ -8,8 +8,11 @@ public:
     Monitor() = default;
     virtual ~Monitor() = default;
     bool init(); // launches Server
+    bool initSpare(); // launches Spare
+    bool activateSpare();
+    void resetSpare();
     bool check(); // checks Server state
-    static void reset(); // terminates irresponsive Server
+    void reset(); // terminates irresponsive Server
 
     static void deleteResource();
     static void getAndSetPort();
