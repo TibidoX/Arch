@@ -8,45 +8,27 @@
 #include "../helpers/UtilFile.h"
 
 static Process sServer;
-static Process sWarmSpare;
+static Process sSpareServer;
 static std::string sPort = "0";
 
-bool Monitor::init()
-{
-    //m_console.handleCtrlC(Monitor::reset); // if Monitor's execution is aborted via Ctrl+C, reset() cleans up its internal state
+bool Monitor::initMainServer() {
     char cmd[256] = {};
     sprintf(cmd, "Server.exe %s", sPort.c_str());
-    bool ok = sServer.create(cmd); // launching Server
+    bool ok = sServer.create(cmd);  // launching Server
     printf(ok ? "monitoring \"%s\"\n" : "error: cannot monitor \"%s\"\n", cmd);
     return ok;
 }
 
-bool Monitor::initSpare() {
+bool Monitor::initSpareServer() {
     char cmd[256] = {};
-    sprintf(cmd, "../Server/Server.exe %s", sPort.c_str());
-    bool ok = sWarmSpare.create(cmd); // launching Server
-    printf(ok ? "monitoring backup \"%s\" %s\n" : "error: cannot monitor \"%s\"\n", cmd, sWarmSpare.pid().c_str());
-    if (ok)
-        sWarmSpare.off();
+    sprintf(cmd, "Server.exe %s", sPort.c_str());
+    bool ok = sSpareServer.create(cmd);  // launching Server
+    printf(ok ? "monitoring spare pid = %s\n": "error: cannot monitor spare pid = %s\n", sSpareServer.pid().c_str());
+    sSpareServer.suspend();
     return ok;
 }
 
-bool Monitor::activateSpare() {
-    if (sWarmSpare.getStatus()) {
-        sWarmSpare.on();
-        return true;
-    }
-    return false;
-}
-
-void Monitor::resetSpare() {
-    activateSpare();
-    sServer = sWarmSpare;
-    initSpare();
-}
-
-bool Monitor::check()
-{
+bool Monitor::isServerAlive() {
     std::string heartBeatFilePath = std::string("./resources/ALIVE" + sServer.pid());
 
     bool isGotBeat = fileExists(heartBeatFilePath);
@@ -58,7 +40,11 @@ bool Monitor::check()
     return true;
 }
 
-void Monitor::deleteResource() {
+void Monitor::reset() {
+    sServer.terminate();
+}
+
+void Monitor::freeResourceDir() {
     std::string directoryPath = "./resources";
     for (const auto& file : std::filesystem::directory_iterator(directoryPath)) {
         if (std::filesystem::is_regular_file(file)) {
@@ -69,12 +55,13 @@ void Monitor::deleteResource() {
     }
 }
 
-void Monitor::getAndSetPort() {
+void Monitor::getAndSetGlobalPort() {
     std::string path = std::string("./resources/CREATED");
     sPort = split(fileReadStr(path), ",")[0];
 }
 
-void Monitor::reset()
-{
+void Monitor::changeSpareToMain() {
     sServer.terminate();
+    sServer = sSpareServer;
+    sServer.resume();
 }
