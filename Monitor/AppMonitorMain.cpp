@@ -11,9 +11,9 @@ int main() {
 
     if (!m.initMainServer()) {
         std::cerr << "Monitor initialization failed!\n";
-        //if (std::filesystem::exists(std::string("./resources/CREATED"))) {
-        //    std::cerr << "Server initialization failed!\n";
-        //}
+        if (std::filesystem::exists(std::string("./resources/CREATED"))) {
+            std::cerr << "Server initialization failed!\n";
+        }
         return 1;
     }
 
@@ -23,8 +23,8 @@ int main() {
 
     while (1) {
         if (!m.isServerAlive()) {
-            m.freeResourceDir();
             m.changeSpareToMain();
+            m.freeResourceDir();
             m.initSpareServer();
         }
         Sleep(1000);

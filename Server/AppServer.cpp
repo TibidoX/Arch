@@ -106,6 +106,16 @@ void Server::run()
             m_data.push_back(name);
             fileAppend("resources\\STATE", m_data.back() + "\n");
         }
+        fileWriteStr(std::string("resources\\STATE_SPARE"), "");
+        char* state = fileReadStr("resources\\STATE"); // load state from previous run
+        if (state)
+        {
+            for (std::string& line : split(state, "\n"))
+                if (!line.empty()) {
+                    fileAppend(std::string("resources\\STATE_SPARE"), line + "\n");
+                }
+            delete[] state;
+        }
         //else if (n > 0) // this is Client's request who wants to upload some data
         //{
         //    m_data.push_back(data); // store it in the feed

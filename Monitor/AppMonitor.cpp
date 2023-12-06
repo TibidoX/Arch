@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <process.h>
 #include "AppMonitor.h"
 #include "helpers/Process.h"
 #include "../helpers/UtilString.h"
@@ -12,6 +13,7 @@ static Process sSpareServer;
 static std::string sPort = "0";
 
 bool Monitor::initMainServer() {
+    m_console.handleCtrlC(Monitor::exit);
     char cmd[256] = {};
     sprintf(cmd, "Server.exe %s", sPort.c_str());
     bool ok = sServer.create(cmd);  // launching Server
@@ -20,10 +22,23 @@ bool Monitor::initMainServer() {
 }
 
 bool Monitor::initSpareServer() {
+    m_console.handleCtrlC(Monitor::exit);
     char cmd[256] = {};
     sprintf(cmd, "Server.exe %s", sPort.c_str());
     bool ok = sSpareServer.create(cmd);  // launching Server
-    printf(ok ? "monitoring spare pid = %s\n": "error: cannot monitor spare pid = %s\n", sSpareServer.pid().c_str());
+    printf(ok ? "spare pid = %s\n": "error: cannot monitor spare pid = %s\n", sSpareServer.pid().c_str());
+
+    //fileWriteStr(std::string("resources\\STATE_SPARE"), "");
+    char* state = fileReadStr("resources\\STATE"); // load state from previous run
+    if (state)
+    {
+        for (std::string& line : split(state, "\n"))
+            if (!line.empty()) {
+                fileAppend(std::string("resources\\STATE_SPARE"), line+"\n");
+            }
+        delete[] state;
+    }
+
     sSpareServer.suspend();
     return ok;
 }
@@ -45,10 +60,10 @@ void Monitor::reset() {
 }
 
 void Monitor::freeResourceDir() {
-    std::string directoryPath = "./resources";
+    std::string directoryPath = ".\\resources";
     for (const auto& file : std::filesystem::directory_iterator(directoryPath)) {
         if (std::filesystem::is_regular_file(file)) {
-            if (file.path().filename() != ".\\STATE") {
+            if (file.path().filename() != "STATE") {
                 std::filesystem::remove_all(file.path());
             }
         }
@@ -63,5 +78,16 @@ void Monitor::getAndSetGlobalPort() {
 void Monitor::changeSpareToMain() {
     sServer.terminate();
     sServer = sSpareServer;
+    if (std::filesystem::exists("resources\\STATE_SPARE")) {
+        Sleep(3000);
+        std::filesystem::remove("resources\\STATE");
+        Sleep(3000);
+        std::filesystem::rename("resources\\STATE_SPARE", "resources\\STATE");
+    }
     sServer.resume();
+}
+
+void Monitor::exit() {
+    sServer.terminate();
+    sSpareServer.terminate();
 }
