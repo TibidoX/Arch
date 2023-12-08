@@ -3,8 +3,6 @@
 
 #include "Socket.h"
 #include "../../helpers/UtilString.h"
-#include "../../helpers/UtilFile.h"
-#include <filesystem>
 
 static int sSocketId = 0;
 
@@ -54,19 +52,7 @@ int Socket::send(const char* msg, int len)
 
 int Socket::sendStr(const std::string& str)
 {
-    std::string msg = "MSG " + str;
-    return send(msg.c_str(), msg.length());
-}
-
-int Socket::sendFile(const std::string& path) {
-    std::string msg = "";
-
-    msg += "FLE ";
-    msg += std::filesystem::path(path).filename().string() + " ";
-
-    msg += getFileStr(path);
-
-    return send(msg.c_str(), msg.length());
+    return send(str.c_str(), str.length());
 }
 
 int Socket::recv()

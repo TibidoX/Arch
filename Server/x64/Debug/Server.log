@@ -1,0 +1,13 @@
+﻿  AppServer.cpp
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\helpers\UtilFile.h(66,16): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\helpers\UtilFile.h(73,51): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\Server\AppServer.cpp(52,120): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+  AppServerMain.cpp
+  Socket.cpp
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\Server\helpers\Socket.cpp(28,27): warning C4244: =: преобразование "SOCKET" в "int", возможна потеря данных
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\Server\helpers\Socket.cpp(55,40): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\Server\helpers\Socket.cpp(67,72): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+  SocketServer.cpp
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\Server\helpers\SocketServer.cpp(60,32): warning C4244: =: преобразование "SOCKET" в "int", возможна потеря данных
+  Создание кода...
+  Server.vcxproj -> C:\Users\vovab\OneDrive\Рабочий стол\Практика4\x64\Debug\Server.exe

@@ -1,0 +1,13 @@
+﻿  AppViewer.cpp
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\helpers\UtilFile.h(66,16): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\helpers\UtilFile.h(73,51): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+  AppViewerMain.cpp
+  Console.cpp
+  Process.cpp
+  Socket.cpp
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\Viewer\helpers\Socket.cpp(28,27): warning C4244: =: преобразование "SOCKET" в "int", возможна потеря данных
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\Viewer\helpers\Socket.cpp(55,40): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\vovab\OneDrive\Рабочий стол\Практика4\Viewer\helpers\Socket.cpp(67,72): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+  SocketClient.cpp
+  Создание кода...
+  Viewer.vcxproj -> C:\Users\vovab\OneDrive\Рабочий стол\Практика4\x64\Debug\Viewer.exe
