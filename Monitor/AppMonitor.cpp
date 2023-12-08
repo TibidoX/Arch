@@ -79,9 +79,7 @@ void Monitor::changeSpareToMain() {
     sServer.terminate();
     sServer = sSpareServer;
     if (std::filesystem::exists("resources\\STATE_SPARE")) {
-        Sleep(3000);
         std::filesystem::remove("resources\\STATE");
-        Sleep(3000);
         std::filesystem::rename("resources\\STATE_SPARE", "resources\\STATE");
     }
     sServer.resume();

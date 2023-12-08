@@ -28,8 +28,15 @@ bool Server::init(int port)
     return true;
 }
 
+void Server::updateViewers() {
+    for (auto sub : m_subscribers) {
+        sub->sendStr(m_data.back());
+    }
+}
+
 void Server::run()
 {
+    bool stateChanged = false;
     while (1)
     {
         fileWriteStr(std::string("resources\\ALIVE") + toStr(_getpid()), ""); // pet the watchdog
@@ -90,6 +97,8 @@ void Server::run()
             const int prefix = 4; // Don`t write prefix to message
             m_data.push_back(data + prefix); // store it in the feed
             fileAppend("resources\\STATE", m_data.back() + "\n"); // store it in the file for subsequent runs
+            updateViewers();
+            stateChanged = true;
         }
         else if (tokens.size() >= 2 && tokens[0] == "FLE") {
             std::string name = "/resources/common/" + tokens[1];
@@ -105,16 +114,33 @@ void Server::run()
 
             m_data.push_back(name);
             fileAppend("resources\\STATE", m_data.back() + "\n");
+            updateViewers();
+            stateChanged = true;
         }
-        fileWriteStr(std::string("resources\\STATE_SPARE"), "");
-        char* state = fileReadStr("resources\\STATE"); // load state from previous run
-        if (state)
+        else if (tokens.size() == 1 && tokens[0] == "SUBSCRIBE") // this is Viewer's request who wants to subscribe to notifications
         {
-            for (std::string& line : split(state, "\n"))
-                if (!line.empty()) {
-                    fileAppend(std::string("resources\\STATE_SPARE"), line + "\n");
-                }
-            delete[] state;
+            m_subscribers.push_back(client); // subscribed
+            /*for (auto s : m_data) {
+                client->sendStr(s + "\n");
+            }*/
+            std::string res = "";
+            for (int i = 0; i < m_data.size()-1; i++) {
+                res += m_data[i] + '\n';
+            }
+            res += m_data[m_data.size() - 1];
+            client->sendStr(res);
+        }
+        if (stateChanged) {
+            fileWriteStr(std::string("resources\\STATE_SPARE"), "");
+            char* state = fileReadStr("resources\\STATE"); // load state from previous run
+            if (state)
+            {
+                for (std::string& line : split(state, "\n"))
+                    if (!line.empty()) {
+                        fileAppend(std::string("resources\\STATE_SPARE"), line + "\n");
+                    }
+                delete[] state;
+            }
         }
         //else if (n > 0) // this is Client's request who wants to upload some data
         //{
